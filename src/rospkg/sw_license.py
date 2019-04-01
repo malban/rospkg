@@ -86,6 +86,71 @@ class LicenseUtil(object):
                 logging.info("License '{}' was present in the given file.".format(key))
         return ret
 
+    def diff_license(self, path_licensefile_new, path_licensefile_prev):
+
+        """
+        @summary Compare 2 files of license output and returns any new license entries.
+        @param protective_licenses: List of protected licenses. If any of these is not found in the given list of licenses 
+            (in the file passed via path_licensefile_prev), error returns.
+        """
+        if not (path_licensefile_new and path_licensefile_prev):
+            raise ValueError(
+                "Check both 2 paths are passed. What are passed: \n- path_licensefile_new: {}\n- path_licensefile_prev: {}".format(path_licensefile_new, path_licensefile_prev))
+        ret = True
+        stream_a = open(path_licensefile_new, "r")
+        yaml_a = yaml.safe_load(stream_a)
+
+        stream_b = open(path_licensefile_prev, "r")
+        yaml_b = yaml.safe_load(stream_b)
+
+        pkgs_a = {}
+        for license, pkgs in yaml_a.iteritems():
+            for pkg in pkgs:
+                pkgs_a[pkg] = license
+                
+        pkgs_b = {}
+        for license, pkgs in yaml_b.iteritems():
+            for pkg in pkgs:
+                pkgs_b[pkg] = license
+
+        ret = True
+        added = []
+        changed = []
+        removed = []
+        
+        for pkg_b, license in sorted(pkgs_b.iteritems()):
+            if pkg_b not in pkgs_a:
+                added.append(pkg_b + ": " + license)
+                ret = False
+            elif license != pkgs_a[pkg_b]:
+                changed.append(pkg_b + ": " + pkgs_a[pkg_b] + " -> " + license)
+                ret = False
+        
+        for pkg_a, license in sorted(pkgs_a.iteritems()):
+            if pkg_a not in pkgs_b:
+                removed.append(pkg_a + ": " + license)
+        
+        if not added:
+            added.append("<None>")
+        if not changed:
+            changed.append("<None>")
+        if not removed:
+            removed.append("<None>")
+        
+        logging.info("New licenses:")
+        for license in added:
+            logging.info("    %s" % (license))
+            
+        logging.info("Changed licenses:")
+        for license in changed:
+            logging.info("    %s" % (license))
+            
+        logging.info("Removed licenses:")
+        for license in removed:
+            logging.info("    %s" % (license))
+
+        return ret
+
     def software_license(self, pkgnames):
         """
         @type pkgnames: Either one of the following:

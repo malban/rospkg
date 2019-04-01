@@ -45,6 +45,10 @@ if __name__ == "__main__":
         '--path_licenses_prev',
         help="Path of a file to be compared from. Run comparison if this is passed.")
     parser.add_argument(
+        '--diff',
+        action='store_true',
+        help="Perform full diff on file passed via path_licensefile_prev and return error if changed.")
+    parser.add_argument(
         '--prefix_outfile', help='Prefix of the output file in an absolute path.'
         ' By default it is {}'.format(PATH_PREFIX_OUTPUT),
         default="{}".format(PATH_PREFIX_OUTPUT))
@@ -57,7 +61,13 @@ if __name__ == "__main__":
         dict_licenses, args.pkg_names, prefix_outfile=args.prefix_outfile)
     print("Path of the output file: {}".format(path_licenses))
     if args.path_licenses_prev:
-        ret = license_util.compare_license(path_licenses, args.path_licenses_prev, args.licenses_alert)
-        if not ret:
-            logging.error("New license found. Exiting with 1.")
-            sys.exit(1)
+        if args.diff:
+            ret = license_util.diff_license(path_licenses, args.path_licenses_prev)
+            if not ret:
+                logging.error("Licenses changed. Exiting with 1.")
+                sys.exit(1)
+        else: 
+            ret = license_util.compare_license(path_licenses, args.path_licenses_prev, args.licenses_alert)
+            if not ret:
+                logging.error("New license found. Exiting with 1.")
+                sys.exit(1)
