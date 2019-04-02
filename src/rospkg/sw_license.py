@@ -123,7 +123,7 @@ class LicenseUtil(object):
                 removed.append(pkg_b + ": " + license)
                 ret = False
             elif license != pkgs_a[pkg_b]:
-                changed.append(pkg_b + ": " + pkgs_a[pkg_b] + " -> " + license)
+                changed.append(pkg_b + ": " + license + " -> " + pkgs_a[pkg_b])
                 ret = False
         
         for pkg_a, license in sorted(pkgs_a.iteritems()):
