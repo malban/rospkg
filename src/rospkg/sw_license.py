@@ -120,7 +120,7 @@ class LicenseUtil(object):
         
         for pkg_b, license in sorted(pkgs_b.iteritems()):
             if pkg_b not in pkgs_a:
-                added.append(pkg_b + ": " + license)
+                removed.append(pkg_b + ": " + license)
                 ret = False
             elif license != pkgs_a[pkg_b]:
                 changed.append(pkg_b + ": " + pkgs_a[pkg_b] + " -> " + license)
@@ -128,7 +128,7 @@ class LicenseUtil(object):
         
         for pkg_a, license in sorted(pkgs_a.iteritems()):
             if pkg_a not in pkgs_b:
-                removed.append(pkg_a + ": " + license)
+                added.append(pkg_a + ": " + license)
         
         if not added:
             added.append("<None>")
